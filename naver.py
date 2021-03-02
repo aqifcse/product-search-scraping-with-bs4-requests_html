@@ -54,3 +54,5 @@ def main_fun_2(query):
 if __name__ == '__main__':
     for query in queries:
         main_fun_2(query)
+
+# http://www.globalinterpark.com/main/searchList?q=

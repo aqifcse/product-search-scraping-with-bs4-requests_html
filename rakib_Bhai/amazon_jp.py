@@ -3,7 +3,7 @@ from requests_html import HTMLSession
 from urllib.parse import urljoin
 import json
 
-queries = ['t-shirt%for%men']
+queries = ['t-shirt for men']
 
 
 def get_search_url(query_keyword):
@@ -14,7 +14,7 @@ def get_search_url(query_keyword):
     keyword': elements from the queries
     """
 
-    base_url = 'https://www.amazon.com/s?k='
+    base_url = 'https://www.amazon.co.jp/s?k='
      
     session = HTMLSession()
 
@@ -23,7 +23,6 @@ def get_search_url(query_keyword):
     resp = session.get(request_url)
     soup = BeautifulSoup(resp.text, "lxml")
     return soup
-
 
 def feature_product_details(url, query_keyword):
     """
@@ -65,7 +64,7 @@ def feature_product_details(url, query_keyword):
     
     print(count)
     
-    file = open('amazon_output.json', 'w', encoding='utf-8')
+    file = open('amazon_jp_output.json', 'w', encoding='utf-8')
     json.dump(query_output, file, ensure_ascii=False)
 
     product_lists = []
