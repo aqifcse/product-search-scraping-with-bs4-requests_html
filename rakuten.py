@@ -3,7 +3,7 @@ from requests_html import HTMLSession
 from urllib.parse import urljoin
 import json
 
-queries = ['t-shirt for men', 'smartphone', 'pen', 'sneaker']
+queries = ['t-shirt for men']
 
 
 def get_search_url(query_keyword):
@@ -19,65 +19,76 @@ def get_search_url(query_keyword):
     session = HTMLSession()
 
     request_url = urljoin(base_url, query_keyword)
+    print(request_url)
     resp = session.get(request_url)
     soup = BeautifulSoup(resp.text, "lxml")
     return soup
 
-
-def feature_product_details(url):
+def feature_product_details(url, query_keyword):
     """
     extract product title, product price
     :param url:
     :return: product title, product_price
     """
+    output_list = []
+    query_output = { 'query_text': query_keyword, 'items': output_list }
+    
+    count = 0
+    for i in url.find_all("div", attrs={"class":"dui-card searchresultitem"}):
+        
+        product_title = i.find("div", attrs={"class":"content title"})
+        if product_title is not None: product_title = product_title.getText()
+        else: product_title = ""
 
-    product_title = [i.getText().split('\n') for i in url.find_all("div", attrs={"class":"content title"})]
-    product_price = [i.getText().split('\n') for i in url.find_all("div", attrs={"class":"content description price"})]
-    product_image = [i['src'] for i in url.find_all("img", attrs={"class":"_verticallyaligned"})]
-    shipping_status = [i.getText().split('\n') for i in url.find_all("span", attrs={"class":"dui-tag -shipping"})]
-    # content_points = [i.getText().split('\n') for i in url.find_all("div", attrs={"class":"content points"})]
-    content_scores = [i.getText().split('\n') for i in url.find_all("span", attrs={"class":"score"})] 
-    content_legends = [i.getText().split('\n') for i in url.find_all("span", attrs={"class":"legend"})]
-    content_merchant_elipsis = [i.getText().split('\n') for i in url.find_all("div", attrs={"class":"content merchant _ellipsis"})]
-    content_merchant_elipsis_links = [i['href'].split('\n') for i in url.find_all("a", attrs={"data-track-action":"shop"}, href=True)]
+        product_price  = i.find("div", attrs={"class":"content description price"})
+        if product_price is not None: product_price = product_price.getText()
+        else: product_price = ""
 
-    output = {
-        'title'                 : product_title,
-        'image'                 : product_image, 
-        'price'                 : product_price,
-        'shipping'              : shipping_status,
-        'rating'                : content_scores,
-        'legends'               : content_legends,
-        'merchant_store_name'   : content_merchant_elipsis,
-        'merchant_store_links'  : content_merchant_elipsis_links,
+        product_image = i.find("img", attrs={"class":"_verticallyaligned"})['src']
+        if product_image is not None: product_image = product_image
+        else: product_image = ""
 
-    }
+        shipping_status = i.find("span", attrs={"class":"dui-tag -shipping"})
+        if shipping_status is not None: shipping_status = shipping_status.getText()
+        else: shipping_status = ""
 
-    file = open('rakuten_output.json', 'w')
-    json.dump(output, file)
+        # content_point = i.find("div", attrs={"class":"content points"}).getText()
+        content_score = i.find("span", attrs={"class":"score"})
+        if content_score is not None: content_score = content_score.getText()
+        else: content_score = ""
 
-    #content points
-    #dui-tag -shipping
+        content_legend = i.find("span", attrs={"class":"legend"})
+        if content_legend is not None: content_legend = content_legend.getText()
+        else: content_legend = ""
 
-    print(product_image)
-    print(product_title)
-    print(product_price)
-    print(shipping_status)
-    # print(content_points)
-    print(content_scores)
-    print(content_legends)
-    print(content_merchant_elipsis)
-    print(content_merchant_elipsis_links)
+        content_merchant_elipsis = i.find("div", attrs={"class":"content merchant _ellipsis"})
+        if content_merchant_elipsis is not None: content_merchant_elipsis = content_merchant_elipsis.getText()
+        else: content_merchant_elipsis = ""
 
+        content_merchant_elipsis_link = i.find("a", attrs={"data-track-action":"shop"}, href=True)['href']
+        if content_merchant_elipsis_link is not None: content_merchant_elipsis_link = content_merchant_elipsis_link
+        else: content_merchant_elipsis_link = ""
 
+        output = {
+            'title'                 : product_title,
+            'image'                 : product_image, 
+            'price'                 : product_price,
+            'shipping'              : shipping_status,
+            'rating'                : content_score,
+            'legend'                : content_legend,
+            'merchant_store_name'   : content_merchant_elipsis,
+            'merchant_store_link'   : content_merchant_elipsis_link,
 
+        }
 
-
+        output_list.append(output)
+    
+    file = open('rakuten_output.json', 'w', encoding='utf-8')
+    json.dump(query_output, file, ensure_ascii=False)
 
     product_lists = []
 
     return product_lists
-
 
 def main_fun_2(query):
     """
@@ -87,10 +98,9 @@ def main_fun_2(query):
     """
     query_keyword = query
     page = get_search_url(query_keyword)
-    product_lists = feature_product_details(page)
+    product_lists = feature_product_details(page, query_keyword)
 
     return product_lists
-
 
 if __name__ == '__main__':
     for query in queries:
