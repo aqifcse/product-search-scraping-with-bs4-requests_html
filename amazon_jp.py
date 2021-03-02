@@ -1,8 +1,9 @@
 from bs4 import BeautifulSoup
 from requests_html import HTMLSession
 from urllib.parse import urljoin
+import json
 
-queries = ['t-shirt for men']
+queries = ['mug']
 
 
 def get_search_url(query_keyword):
@@ -23,23 +24,52 @@ def get_search_url(query_keyword):
     soup = BeautifulSoup(resp.text, "lxml")
     return soup
 
-
-def feature_product_details(url):
+def feature_product_details(url, query_keyword):
     """
     extract product title, product price
     :param url:
     :return: product title, product_price
     """
+    output_list = []
+    query_output = { 'query_text': query_keyword, 'items': output_list }
+    
+    count = 0
+    for i in url.find_all("div", attrs={"class":"sg-col-4-of-12 s-result-item s-asin sg-col-4-of-16 sg-col sg-col-4-of-20"}):
+        
+        product_title = i.find("div", attrs={"class":"a-section a-spacing-none a-spacing-top-small"})
+        if product_title is not None: product_title = product_title.getText().replace('\n', '')
+        else: product_title = ""
 
+        product_price  = i.find("span", attrs={"class":"a-price-whole"})
+        if product_price is not None: product_price = product_price.getText()
+        else: product_price = ""
 
-    product_title = [i.getText().split('\n') for i in url.find_all("div", attrs={"class":"a-section a-spacing-none a-spacing-top-small"})]
-    product_price = [i.getText().split('\n') for i in url.find_all("span", attrs={"class":"a-price-whole"})]
-    print(product_title)
-    print(product_price)
+        product_image = i.find("img", attrs={"class":"s-image"})['src']
+        if product_image is not None: product_image = product_image
+        else: product_image = ""
+
+        rating = i.find("a", attrs={"class":"a-popover-trigger a-declarative"})
+        if rating is not None: rating = rating.getText()
+        else: rating = ""
+
+        output = {
+            'title'                 : product_title,
+            'image'                 : product_image, 
+            'price'                 : product_price,
+            'rating'                : rating,
+        }
+        count = count + 1
+        print(output)
+        output_list.append(output)
+    
+    print(count)
+    
+    file = open('amazon_jp_output.json', 'w', encoding='utf-8')
+    json.dump(query_output, file, ensure_ascii=False)
+
     product_lists = []
 
     return product_lists
-
 
 def main_fun_2(query):
     """
@@ -49,7 +79,7 @@ def main_fun_2(query):
     """
     query_keyword = query
     page = get_search_url(query_keyword)
-    product_lists = feature_product_details(page)
+    product_lists = feature_product_details(page, query_keyword)
 
     return product_lists
 
