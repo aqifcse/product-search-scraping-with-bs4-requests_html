@@ -3,7 +3,7 @@ from requests_html import HTMLSession
 from urllib.parse import urljoin
 import json
 
-queries = ['trousers']
+queries = ['tshirt']
 
 
 def get_search_url(query_keyword):
@@ -48,6 +48,10 @@ def feature_product_details(url, query_keyword):
         if product_image is not None: product_image = product_image
         else: product_image = ""
 
+        product_link = i.find("a", href=True)['href']
+        if product_link is not None: product_link = product_link
+        else: product_link = ""
+
         shipping_status = i.find("span", attrs={"class":"dui-tag -shipping"})
         if shipping_status is not None: shipping_status = shipping_status.getText()
         else: shipping_status = ""
@@ -71,6 +75,7 @@ def feature_product_details(url, query_keyword):
 
         output = {
             'title'                 : product_title,
+            'product_link'          : product_link,
             'image'                 : product_image, 
             'price'                 : product_price,
             'shipping'              : shipping_status,

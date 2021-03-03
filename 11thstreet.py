@@ -1,8 +1,9 @@
 from bs4 import BeautifulSoup
 from requests_html import HTMLSession
 from urllib.parse import urljoin
+import json
 
-queries = ['t-shirt for men', 'smartphone', 'pen', 'sneaker']
+queries = ['baseball']
 
 
 def get_search_url(query_keyword):
@@ -17,26 +18,64 @@ def get_search_url(query_keyword):
      
     session = HTMLSession()
 
-    request_url = urljoin(base_url, query_keyword)
+    request_url = base_url + query_keyword
     resp = session.get(request_url)
     soup = BeautifulSoup(resp.text, "lxml")
     return soup
 
 
-def feature_product_details(url):
+def feature_product_details(url, query_keyword):
     """
     extract product title, product price
     :param url:
     :return: product title, product_price
     """
-    product_title = [i.getText().split('\n') for i in url.find_all("p", attrs={"class":"info_tit"})]
-    product_price = [i.getText().split('\n') for i in url.find_all("span", attrs={"class":"prc"})]
-    print(product_title)
-    print(product_price)
+    output_list = []
+    query_output = { 'query_text': query_keyword, 'items': output_list }
+    
+    count = 0
+    for i in url.find_all("li", attrs={"data-ctgrrank":"0"}):
+        
+        product_info = i.find("div", attrs={"class":"list_info"})
+        if product_info is not None: product_info = product_info.getText().replace('\n', '')
+        else: product_info = ""
+
+        product_price  = i.find("div", attrs={"class":"price_box"})
+        if product_price is not None: product_price = product_price.getText().replace('\n', '')
+        else: product_price = ""
+
+        product_link = i.find("a", href=True)['href']
+        if product_link is not None: product_link = product_link
+        else: product_link = ""
+
+        # list_benefit
+        list_benefit  = i.find("div", attrs={"class":"list_benefit"})
+        if list_benefit is not None: list_benefit = list_benefit.getText().replace('\n', '')
+        else: list_benefit = ""
+
+        product_image = 'https:' + i.find("img")['src']
+        if product_image is not None: product_image = product_image
+        else: product_image = ""
+
+        output = {
+            'product_info'  : product_info,
+            'product_link'  : product_link,
+            'image'         : product_image, 
+            'price'         : product_price,
+            'benefit'       : list_benefit
+        }
+        print(output)
+        count = count + 1
+        output_list.append(output)
+    
+    print(count)
+    
+    file = open('11thstreet_output.json', 'w', encoding='utf-8')
+    json.dump(query_output, file, ensure_ascii=False)
+
     product_lists = []
 
     return product_lists
-
 
 def main_fun_2(query):
     """
@@ -46,7 +85,7 @@ def main_fun_2(query):
     """
     query_keyword = query
     page = get_search_url(query_keyword)
-    product_lists = feature_product_details(page)
+    product_lists = feature_product_details(page, query_keyword)
 
     return product_lists
 

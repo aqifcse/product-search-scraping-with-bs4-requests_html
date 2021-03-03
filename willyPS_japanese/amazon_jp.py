@@ -3,7 +3,7 @@ from requests_html import HTMLSession
 from urllib.parse import urljoin
 import json
 
-queries = ['t-shirt for men']
+queries = ['mug']
 
 
 def get_search_url(query_keyword):

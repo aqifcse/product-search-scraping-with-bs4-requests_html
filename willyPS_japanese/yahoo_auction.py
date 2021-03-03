@@ -48,10 +48,6 @@ def feature_product_details(url, query_keyword):
         if product_image is not None: product_image = product_image
         else: product_image = ""
 
-        product_link = i.find("a", attrs={"class":"Product__titleLink js-rapid-override"}, href=True)['href']
-        if product_link is not None: product_link = product_link
-        else: product_link = ""
-
         product_other_info = i.find("div", attrs={"class":"Product__otherInfo"})
         if product_other_info is not None: product_other_info = product_other_info.getText()
         else: product_other_info = ""
@@ -71,7 +67,6 @@ def feature_product_details(url, query_keyword):
 
         output = {
             'title'                : product_title,
-            'product_link'         : product_link,
             'image'                : product_image, 
             'price'                : product_price,
             'product_other_info'   : product_other_info,
