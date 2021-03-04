@@ -48,6 +48,10 @@ def feature_product_details(url, query_keyword):
         if product_image is not None: product_image = product_image
         else: product_image = ""
 
+        product_link = i.find("a", attrs={"class":"_2EW-04-9Eayr"}, href=True)['href']
+        if product_link is not None: product_link = product_link
+        else: product_link = ""
+
         free_shipping_condition = i.find("p", attrs={"class":"_32KbV7dXg8VJ _1Y5Jt3UDoWau"})
         if free_shipping_condition is not None: free_shipping_condition = free_shipping_condition.getText()
         else: free_shipping_condition = ""
@@ -65,7 +69,7 @@ def feature_product_details(url, query_keyword):
         if rating is not None: rating = rating.getText()
         else: rating = ""
 
-        narrow_down_by_brand = i.find("span", attrs={"class":"MarkText__text"})
+        narrow_down_by_brand = i.find("span", attrs={"class":"beQhYPTbtT9U"})
         if narrow_down_by_brand is not None: narrow_down_by_brand = narrow_down_by_brand.getText()
         else: narrow_down_by_brand = ""
 
@@ -79,6 +83,7 @@ def feature_product_details(url, query_keyword):
 
         output = {
             'title'                     : product_title,
+            'product_link'              : product_link,
             'image'                     : product_image, 
             'price'                     : product_price,
             'free_shipping_condition'   : free_shipping_condition,

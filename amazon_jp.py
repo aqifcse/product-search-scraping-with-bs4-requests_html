@@ -14,7 +14,7 @@ def get_search_url(query_keyword):
     keyword': elements from the queries
     """
 
-    base_url = 'https://www.amazon.co.jp/s?k='
+    base_url = 'https://www.amazon.in/s?k='
      
     session = HTMLSession()
 
