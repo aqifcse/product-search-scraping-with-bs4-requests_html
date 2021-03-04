@@ -42,12 +42,16 @@ def feature_product_details(url, query_keyword):
         if product_title is not None: product_title = product_title.getText()
         else: product_title = ""
 
+        product_link = i.find("a", attrs={"class":"search-product-link"}, href=True)['href']
+        if product_link is not None: product_link =  'https://www.coupang.com' + product_link
+        else: product_link = ""
+
         product_price  = i.find("em", attrs={"class":"sale discount isInstantDiscount"})
         if product_price is not None: product_price = product_price.getText()
         else: product_price = ""
 
         product_image = i.find("img", attrs={"class":"search-product-wrap-img"})['src']
-        if product_image is not None: product_image = product_image
+        if product_image is not None: product_image = 'https:' + product_image
         else: product_image = ""
 
         shipping_status = i.find("div", attrs={"class":"delivery"})
@@ -73,6 +77,7 @@ def feature_product_details(url, query_keyword):
 
         output = {
             'title'                 : product_title,
+            'product_link'          : product_link,
             'image'                 : product_image, 
             'price'                 : product_price,
             'shipping'              : shipping_status,
